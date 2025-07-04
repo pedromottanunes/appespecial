@@ -2,676 +2,528 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>SimulaMed – Casos Clínicos Interativos</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <title>App Social Infantil</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    :root {
-      --azul: #147bb7;
-      --azul-claro: #eaf9ff;
-      --bege: #fcf7e8;
-      --verde: #37b97a;
-      --vermelho: #ed6b67;
-      --cinza: #ececec;
-      --branco: #fff;
-    }
-    * { box-sizing: border-box; }
-    body {
+    html, body {
+      height: 100%; margin: 0; padding: 0; box-sizing: border-box;
       font-family: 'Poppins', Arial, sans-serif;
-      background: linear-gradient(135deg, var(--azul-claro) 0%, var(--bege) 100%);
-      margin: 0;
+      background: linear-gradient(135deg, #fef6e0 0%, #e0f7fa 100%);
       min-height: 100vh;
-      display: flex; flex-direction: column; align-items: center;
     }
-    h1 {
-      margin-top: 22px; color: var(--azul); font-size: 2.1rem;
-      letter-spacing: -1px;
-      font-weight: 600;
+    body {
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    }
+    .container {
+      background: #fffbea;
+      border-radius: 22px;
+      box-shadow: 0 2px 18px #c6e6f7a0;
+      margin-top: 34px;
+      padding: 26px 18px 20px 18px;
+      width: 97vw;
+      max-width: 430px;
+      min-height: 420px;
+      display: flex; flex-direction: column; align-items: center;
+      transition: box-shadow .2s;
+    }
+    h1, h2 {
+      color: #1988c7;
       text-align: center;
+      margin-bottom: 10px;
+      font-weight: 700;
     }
-    #app {
-      background: var(--branco); border-radius: 16px; box-shadow: 0 2px 18px #c6e6f7aa;
-      padding: 30px 20px; margin-top: 18px; width: 96vw; max-width: 500px;
-      display: flex; flex-direction: column; align-items: center;
-      min-height: 320px;
+    h2 {
+      margin-top: 12px; margin-bottom: 18px;
+      font-size: 1.25rem;
     }
     .menu-btn {
-      width: 100%; max-width: 340px; padding: 22px 0;
-      background: var(--azul); color: #fff; border: none;
-      border-radius: 12px; margin: 18px 0; font-size: 1.15rem;
-      font-family: 'Poppins', Arial, sans-serif; font-weight: 600;
-      cursor: pointer; transition: background 0.2s, box-shadow 0.2s;
-      box-shadow: 0 1px 5px #c6e6f7bb;
-      letter-spacing: 0.5px;
+      display: block;
+      width: 92%;
+      padding: 20px;
+      margin: 16px auto;
+      border: none;
+      border-radius: 16px;
+      background: linear-gradient(90deg, #ffd174 60%, #6ae4e7 100%);
+      color: #51431e;
+      font-size: 1.3rem;
+      font-weight: bold;
+      box-shadow: 0 3px 16px #e2dbb6aa;
+      cursor: pointer;
+      transition: background .22s, transform .15s;
+      letter-spacing: .02em;
     }
-    .menu-btn:hover { background: #125e90; }
-    .section-title {
-      font-size: 1.3rem; color: var(--azul); font-weight: 600;
-      margin-bottom: 10px; text-align: center;
+    .menu-btn:hover { background: #ffe9b0; transform: scale(1.03); }
+
+    /* Treinando Emoções */
+    .emotion-q {
+      font-size: 1.18rem;
+      margin: 0 0 28px 0;
+      color: #187db7;
+      background: #f1f7ff;
+      border-radius: 11px;
+      padding: 11px 16px;
     }
-    .caso-box, .quiz-box, .banco-box {
-      width: 100%; max-width: 410px; margin: 0 auto;
-      display: flex; flex-direction: column; align-items: stretch;
-      background: var(--cinza); border-radius: 12px; padding: 16px 15px;
+    .emoji-cards {
+      display: flex;
+      justify-content: center;
+      gap: 22px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
     }
-    .quiz-box { background: #e4f5ea; }
-    .banco-box { background: #fcf6ec; }
-    .caso-titulo { color: var(--azul); font-weight: 600; margin-bottom: 8px; }
-    .caso-enunciado { margin-bottom: 10px; color: #444; }
-    .caso-pergunta, .quiz-pergunta { margin-bottom: 14px; color: #222; font-weight: 600; }
-    .alternativas, .quiz-alternativas {
-      display: flex; flex-direction: column; gap: 9px; margin-bottom: 8px;
+    .emoji-card {
+      width: 80px; height: 80px;
+      background: #fff;
+      border: 2.2px solid #f7c76a;
+      border-radius: 18px;
+      box-shadow: 0 2px 12px #ffe1a28f;
+      font-size: 2.55rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      transition: background .18s, transform .14s;
+      user-select: none;
     }
-    .alt-btn, .quiz-alt-btn {
-      background: #fff; border: 2px solid var(--azul);
-      border-radius: 10px; padding: 11px 7px;
-      font-size: 1rem; font-family: inherit; cursor: pointer;
-      transition: background 0.18s, border 0.18s;
-      text-align: left;
-    }
-    .alt-btn.selected, .quiz-alt-btn.selected {
-      border-color: var(--azul); background: #eaf3fb;
-    }
-    .alt-btn.certa, .quiz-alt-btn.certa {
-      background: var(--verde); color: #fff; border-color: var(--verde);
-      pointer-events: none;
-    }
-    .alt-btn.errada, .quiz-alt-btn.errada {
-      background: var(--vermelho); color: #fff; border-color: var(--vermelho);
-      pointer-events: none;
-    }
-    .feedback { margin: 10px 0 4px 0; font-weight: 600; }
-    .feedback.ok { color: var(--verde);}
-    .feedback.erro { color: var(--vermelho);}
-    .caso-nav, .quiz-nav {
-      display: flex; gap: 12px; justify-content: center;
-      margin-top: 14px;
-    }
-    .nav-btn, .banco-voltar {
-      background: var(--azul); color: #fff; border: none;
-      border-radius: 7px; padding: 8px 18px;
-      font-size: 1rem; font-family: inherit; cursor: pointer;
-      transition: background 0.18s;
-      margin-top: 4px;
-    }
-    .nav-btn:disabled { background: #8cb5ce; cursor: not-allowed; }
-    .banco-qst {
-      margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #eee;
-    }
-    .banco-pergunta { color: #333; font-weight: 600; margin-bottom: 3px;}
-    .banco-resposta { color: #24694a; margin-bottom: 2px;}
-    .placar {
-      background: #d6f3f2; color: #147b7b; font-weight: 600;
-      margin: 14px 0 0 0; border-radius: 8px; padding: 7px 0;
+    .emoji-card:hover { background: #fff8e3; transform: scale(1.06); }
+    .feedback {
+      font-size: 1.14rem;
+      font-weight: 600;
+      margin: 12px 0;
+      min-height: 27px;
+      color: #2d8c50;
       text-align: center;
+      background: #e9ffef;
+      border-radius: 10px;
+      padding: 4px 12px;
+      display: inline-block;
     }
-    .voltar-btn {
-      margin: 18px auto 0 auto; display: block;
-      background: #aaa; color: #fff; border: none;
-      border-radius: 8px; padding: 8px 25px;
-      font-size: 1rem; font-family: inherit; cursor: pointer;
-      transition: background 0.18s;
+    .score {
+      margin-top: 12px;
+      margin-bottom: 10px;
+      color: #c37614;
+      font-weight: 600;
+      font-size: 1.03rem;
+      letter-spacing: .01em;
     }
-    .voltar-btn:hover, .banco-voltar:hover { background: #636363; }
-    @media (max-width: 520px) {
-      #app { padding: 14px 2vw; }
-      .caso-box, .quiz-box, .banco-box { padding: 9px 5px; }
+    .next-btn, .menu-btn-small {
+      padding: 11px 23px;
+      font-size: 1rem;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(90deg, #6ae4e7 60%, #ffd174 100%);
+      color: #1c5262;
+      font-weight: bold;
+      margin: 8px 5px 0 5px;
+      cursor: pointer;
+      transition: background .22s;
     }
-    ::selection { background: #cbeeff; }
+    .next-btn:hover, .menu-btn-small:hover { background: #d6fff6; }
+
+    /* Rotinas Visuais */
+    .rotina-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      margin-top: 8px;
+      margin-bottom: 15px;
+    }
+    .rotina-item {
+      background: #f1faff;
+      border: 1.5px solid #bbdefb;
+      border-radius: 13px;
+      padding: 16px;
+      cursor: pointer;
+      font-size: 1.13rem;
+      font-weight: 500;
+      text-align: center;
+      color: #1565c0;
+      transition: background .16s, transform .11s;
+    }
+    .rotina-item:hover { background: #fff8e1; transform: scale(1.03);}
+    .passos-list {
+      width: 100%;
+      margin-bottom: 15px;
+      margin-top: 7px;
+      padding: 0;
+    }
+    .passo-item {
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border-radius: 8px;
+      margin: 9px 0;
+      padding: 8px 13px;
+      font-size: 1.06rem;
+      color: #135c53;
+      border: 1px solid #eee8c8;
+      box-shadow: 0 1px 7px #d7ede7aa;
+      cursor: pointer;
+      transition: background .18s;
+    }
+    .passo-item input[type="checkbox"] {
+      margin-right: 15px; width: 22px; height: 22px;
+      accent-color: #ffd600;
+    }
+    .parabens {
+      color: #388e3c;
+      font-size: 1.18rem;
+      font-weight: 600;
+      background: #e5ffe1;
+      border-radius: 13px;
+      padding: 8px 12px;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    /* Simulador de Conversa */
+    .chat-box {
+      width: 100%;
+      min-height: 200px;
+      background: #f2fafe;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px #b8e0ed44;
+      padding: 17px 11px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      font-size: 1.1rem;
+    }
+    .chat-msg {
+      background: #fff;
+      padding: 9px 14px;
+      border-radius: 10px;
+      color: #246679;
+      max-width: 85%;
+      align-self: flex-start;
+      box-shadow: 0 1px 5px #e2f1f788;
+      word-break: break-word;
+    }
+    .chat-user {
+      align-self: flex-end;
+      background: #fce29f;
+      color: #af6b07;
+    }
+    .chat-options {
+      display: flex; gap: 13px; flex-wrap: wrap; margin-top: 5px;
+    }
+    .chat-option-btn {
+      padding: 7px 15px;
+      background: #ffe082;
+      border-radius: 7px;
+      border: none;
+      color: #6c5705;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background .16s;
+      margin-bottom: 4px;
+    }
+    .chat-option-btn:hover { background: #fffde7; }
+
+    /* Geral */
+    @media (max-width: 510px) {
+      .container { padding: 9px 2vw 18px 2vw; max-width: 98vw; min-height: 390px;}
+      .emoji-card { width: 70px; height: 70px; font-size: 2.1rem; }
+    }
   </style>
 </head>
 <body>
-  <h1>SimulaMed</h1>
-  <div id="app"></div>
+  <div class="container" id="mainContainer">
+    <!-- Conteúdo dinâmico será injetado aqui -->
+  </div>
+  <script>
+    // --- Dados para as atividades ---
+    // 1. Emoções
+    const EMOCOES = [
+      { nome: "Feliz",      emoji: "😊" },
+      { nome: "Triste",     emoji: "😢" },
+      { nome: "Bravo",      emoji: "😡" },
+      { nome: "Surpreso",   emoji: "😮" }
+    ];
+    // Cada rodada embaralha ordem das opções
 
-<script>
-const casos = [
-  {
-    titulo: "Dor Torácica em Idoso",
-    enunciado: "Paciente masculino, 68 anos, hipertenso, relata dor precordial intensa há 35 minutos, associada a sudorese e náuseas. ECG: supradesnivelamento de ST em DII, DIII e aVF.",
-    pergunta: "Qual o diagnóstico mais provável?",
-    alternativas: [
-      "Infarto agudo do miocárdio com supra de ST inferior",
-      "Angina estável",
-      "Pericardite aguda",
-      "Embolia pulmonar"
-    ],
-    correta: 0,
-    feedback: "Esse é um quadro típico de IAM com supra de ST em parede inferior (DII, DIII, aVF), sobretudo em idoso e com fatores de risco."
-  },
-  {
-    titulo: "Febre e Tosse em Criança",
-    enunciado: "Menino de 4 anos, febre alta, tosse produtiva, taquipneia e estertores crepitantes em base direita. SatO2: 94%.",
-    pergunta: "Qual a conduta inicial?",
-    alternativas: [
-      "Antibiótico empírico e oxigenoterapia se necessário",
-      "Expectante, apenas hidratação",
-      "Broncodilatador inalatório",
-      "Corticoterapia sistêmica"
-    ],
-    correta: 0,
-    feedback: "Antibiótico imediato é indicado na suspeita de pneumonia bacteriana típica em criança, além de suporte com oxigenoterapia conforme a saturação."
-  },
-  {
-    titulo: "Poliúria em Jovem",
-    enunciado: "Adolescente, 16 anos, emagrecimento rápido, sede intensa e poliúria há 1 mês. Glicemia: 380 mg/dL.",
-    pergunta: "O que esse quadro sugere?",
-    alternativas: [
-      "Diabetes mellitus tipo 1",
-      "Diabetes insipidus",
-      "Síndrome nefrótica",
-      "Hipertireoidismo"
-    ],
-    correta: 0,
-    feedback: "Poliúria, emagrecimento e hiperglicemia sugerem fortemente DM tipo 1 em jovem."
-  },
-  {
-    titulo: "Dispneia Aguda Pós-Cirurgia",
-    enunciado: "Mulher, 59 anos, pós-operatório de histerectomia há 4 dias, súbita dispneia e dor torácica. FC 112 bpm, SatO2: 88%.",
-    pergunta: "Diagnóstico mais provável?",
-    alternativas: [
-      "Embolia pulmonar aguda",
-      "Pneumotórax espontâneo",
-      "Infarto agudo do miocárdio",
-      "Asma aguda"
-    ],
-    correta: 0,
-    feedback: "Cirurgia recente e sintomas sugerem fortemente embolia pulmonar."
-  },
-  {
-    titulo: "Icterícia em Recém-nascido",
-    enunciado: "RN de 3 dias, nascido a termo, apresenta icterícia progressiva. Mãe O-, bebê A+.",
-    pergunta: "Principal hipótese diagnóstica?",
-    alternativas: [
-      "Incompatibilidade ABO",
-      "Atresia de vias biliares",
-      "Hepatite viral",
-      "Sepse neonatal"
-    ],
-    correta: 0,
-    feedback: "Incompatibilidade ABO é frequente em RN de mãe O e bebê A ou B, podendo causar icterícia precoce."
-  },
-  {
-    titulo: "Cefaleia Súbita e Intensa",
-    enunciado: "Homem, 41 anos, cefaleia intensa, súbita, 'pior da vida'. Sinais meníngeos positivos.",
-    pergunta: "Qual exame solicitar imediatamente?",
-    alternativas: [
-      "Tomografia de crânio sem contraste",
-      "Punção lombar",
-      "Angioressonância cerebral",
-      "Eletroencefalograma"
-    ],
-    correta: 0,
-    feedback: "Suspeita de hemorragia subaracnoide: TC de crânio sem contraste deve ser o primeiro exame."
-  },
-  {
-    titulo: "Hemorragia Digestiva Alta",
-    enunciado: "Mulher, 50 anos, melena, PA 92/56 mmHg, FC 110 bpm, HGB 7,9 g/dL.",
-    pergunta: "Conduta prioritária?",
-    alternativas: [
-      "Estabilizar via acesso venoso e reposição volêmica",
-      "Endoscopia de urgência imediata",
-      "Iniciar antibiótico empírico",
-      "Propranolol oral"
-    ],
-    correta: 0,
-    feedback: "Estabilização hemodinâmica é a prioridade em HDA grave antes de endoscopia."
-  },
-  {
-    titulo: "Prurido e Lesões em Mãos",
-    enunciado: "Mulher, 29 anos, prurido intenso nas mãos, principalmente à noite. Pequenas pápulas e lesões entre os dedos.",
-    pergunta: "Hipótese mais provável:",
-    alternativas: [
-      "Escabiose (sarna)",
-      "Dermatite atópica",
-      "Psoríase",
-      "Herpes simples"
-    ],
-    correta: 0,
-    feedback: "Lesões interdigitais e prurido noturno são típicos de escabiose."
-  },
-  {
-    titulo: "Dor em Fossa Ilíaca Direita",
-    enunciado: "Homem, 25 anos, dor abdominal em fossa ilíaca direita, febre, náuseas, dor à descompressão brusca.",
-    pergunta: "Qual o diagnóstico mais provável?",
-    alternativas: [
-      "Apendicite aguda",
-      "Diverticulite aguda",
-      "Colecistite aguda",
-      "Gastrite"
-    ],
-    correta: 0,
-    feedback: "Sinal de descompressão, localização e clínica sugerem apendicite aguda."
-  },
-  {
-    titulo: "Infecção Urinária em Gestante",
-    enunciado: "Gestante de 27 anos, disúria, polaciúria, sem febre. EAS: leucocitúria, bacteriúria.",
-    pergunta: "Conduta adequada:",
-    alternativas: [
-      "Iniciar antibiótico seguro na gestação",
-      "Observar apenas",
-      "Solicitar TC de abdome",
-      "Internação imediata"
-    ],
-    correta: 0,
-    feedback: "ITUs em gestantes exigem tratamento antibiótico seguro devido ao risco de complicações."
-  },
-  {
-    titulo: "Dor Lombar e Hematúria",
-    enunciado: "Homem, 38 anos, dor lombar intensa, irradia para a virilha, hematúria macroscópica, sem febre.",
-    pergunta: "Diagnóstico provável:",
-    alternativas: [
-      "Cólica renal por cálculo ureteral",
-      "Infecção urinária",
-      "Glomerulonefrite",
-      "Pielonefrite aguda"
-    ],
-    correta: 0,
-    feedback: "Dor lombar com irradiação e hematúria sugerem fortemente litíase renal."
-  },
-  {
-    titulo: "Confusão Mental em Idoso",
-    enunciado: "Idoso, 81 anos, confusão mental súbita, desatenção, sonolência. Infecção urinária em curso.",
-    pergunta: "Qual a principal hipótese?",
-    alternativas: [
-      "Delirium secundário a infecção",
-      "Demência de Alzheimer",
-      "AVC isquêmico",
-      "Síndrome depressiva"
-    ],
-    correta: 0,
-    feedback: "Delirium é comum em idosos com infecções; início súbito é sugestivo."
-  },
-  {
-    titulo: "Síncope em Jovem Atleta",
-    enunciado: "Jovem, 18 anos, síncope durante exercício físico intenso, sem pródromos, recupera rápido.",
-    pergunta: "O que deve ser prioritariamente investigado?",
-    alternativas: [
-      "Cardiomiopatia hipertrófica",
-      "Anemia aguda",
-      "Crise convulsiva",
-      "Hipoglicemia"
-    ],
-    correta: 0,
-    feedback: "Síncope em esforço sem pródromos em jovem sugere cardiopatia estrutural como a CMH."
-  },
-  {
-    titulo: "Dor Óssea e Hipercalcemia",
-    enunciado: "Mulher, 56 anos, queixa-se de dor óssea difusa, fraqueza e exames mostram hipercalcemia.",
-    pergunta: "Qual diagnóstico considerar?",
-    alternativas: [
-      "Mieloma múltiplo",
-      "Hipotireoidismo",
-      "Osteomielite",
-      "Artrite reumatoide"
-    ],
-    correta: 0,
-    feedback: "Mieloma múltiplo cursa com dor óssea, fraqueza e hipercalcemia por reabsorção óssea."
-  },
-  {
-    titulo: "Faringite Aguda Febril",
-    enunciado: "Menina, 8 anos, febre, dor de garganta intensa, exsudato amigdaliano, adenomegalia cervical.",
-    pergunta: "Qual etiologia mais provável?",
-    alternativas: [
-      "Estreptococo beta-hemolítico do grupo A",
-      "Adenovírus",
-      "Mononucleose infecciosa",
-      "Parainfluenza"
-    ],
-    correta: 0,
-    feedback: "Faringite exsudativa com febre em criança sugere infecção estreptocócica."
-  }
-];
+    const EMOCOES_RODADA = [
+      { pergunta: "Feliz",    correta: "😊" },
+      { pergunta: "Triste",   correta: "😢" },
+      { pergunta: "Bravo",    correta: "😡" },
+      { pergunta: "Surpreso", correta: "😮" },
+      { pergunta: "Triste",   correta: "😢" },
+      { pergunta: "Feliz",    correta: "😊" },
+      { pergunta: "Bravo",    correta: "😡" },
+      { pergunta: "Surpreso", correta: "😮" }
+    ];
 
-const quizQuestoes = [
-  {
-    pergunta: "Qual dos sintomas abaixo NÃO faz parte da síndrome nefrótica?",
-    alternativas: [
-      "Edema",
-      "Proteinúria",
-      "Hipertensão arterial",
-      "Hipoalbuminemia"
-    ],
-    correta: 2,
-    explicacao: "A hipertensão pode estar presente, mas não é um critério diagnóstico clássico da síndrome nefrótica."
-  },
-  {
-    pergunta: "Qual exame confirma tuberculose pulmonar ativa?",
-    alternativas: [
-      "Baciloscopia de escarro",
-      "Raio-X de tórax",
-      "Dosagem de PPD",
-      "Gasometria arterial"
-    ],
-    correta: 0,
-    explicacao: "A baciloscopia do escarro confirma TB pulmonar ativa ao demonstrar BAAR."
-  },
-  {
-    pergunta: "Medicação de escolha na crise convulsiva prolongada:",
-    alternativas: [
-      "Diazepam EV",
-      "Haloperidol",
-      "Fluoxetina",
-      "AAS"
-    ],
-    correta: 0,
-    explicacao: "Benzodiazepínicos, como diazepam EV, são os fármacos de escolha para crises convulsivas agudas."
-  },
-  {
-    pergunta: "Qual conduta imediata na anafilaxia?",
-    alternativas: [
-      "Adrenalina IM",
-      "Corticoide oral",
-      "Antibiótico EV",
-      "Anti-histamínico VO"
-    ],
-    correta: 0,
-    explicacao: "Adrenalina IM é a droga de escolha na anafilaxia."
-  },
-  {
-    pergunta: "Achado clássico do ECG na hipercalemia:",
-    alternativas: [
-      "Onda T apiculada",
-      "QRS alargado",
-      "PR prolongado",
-      "Onda U proeminente"
-    ],
-    correta: 0,
-    explicacao: "Onda T apiculada é característica inicial na hipercalemia."
-  },
-  {
-    pergunta: "Sintoma mais frequente na apendicite aguda:",
-    alternativas: [
-      "Dor periumbilical migrando para FID",
-      "Náuseas isoladas",
-      "Febre alta isolada",
-      "Hematoquezia"
-    ],
-    correta: 0,
-    explicacao: "A dor migratória é o sintoma mais típico da apendicite."
-  },
-  {
-    pergunta: "Qual agente mais comum da pneumonia adquirida na comunidade em adultos?",
-    alternativas: [
-      "Streptococcus pneumoniae",
-      "Klebsiella pneumoniae",
-      "Haemophilus influenzae",
-      "Legionella pneumophila"
-    ],
-    correta: 0,
-    explicacao: "Streptococcus pneumoniae é o agente mais prevalente."
-  },
-  {
-    pergunta: "Indicação de uso de trombolítico em AVC:",
-    alternativas: [
-      "AVC isquêmico nas primeiras 4,5 horas",
-      "AVC hemorrágico",
-      "Infarto agudo do miocárdio",
-      "Qualquer AVC, independente do tempo"
-    ],
-    correta: 0,
-    explicacao: "Trombolítico só está indicado em AVC isquêmico nas primeiras 4,5 horas."
-  },
-  {
-    pergunta: "Sinal clássico da insuficiência cardíaca descompensada:",
-    alternativas: [
-      "Dispneia aos esforços",
-      "Tontura postural",
-      "Dor epigástrica",
-      "Claudicação intermitente"
-    ],
-    correta: 0,
-    explicacao: "Dispneia é sintoma predominante na IC descompensada."
-  },
-  {
-    pergunta: "Principal causa de dor abdominal aguda em adultos jovens:",
-    alternativas: [
-      "Apendicite aguda",
-      "Colecistite aguda",
-      "Pancreatite aguda",
-      "Úlcera perfurada"
-    ],
-    correta: 0,
-    explicacao: "Apendicite é a principal causa cirúrgica em jovens."
-  },
-  {
-    pergunta: "Qual o tratamento inicial da asma aguda leve?",
-    alternativas: [
-      "Beta2-agonista inalatório",
-      "Corticoide sistêmico imediato",
-      "Antibiótico de largo espectro",
-      "Nebulização com adrenalina"
-    ],
-    correta: 0,
-    explicacao: "Beta2-agonista inalatório (salbutamol) é o tratamento inicial de escolha."
-  },
-  {
-    pergunta: "Situação clássica para uso de soro antiofídico:",
-    alternativas: [
-      "Mordida de jararaca com sinais sistêmicos",
-      "Mordida de cachorro sem sintomas",
-      "Picada de abelha",
-      "Arranhadura de gato"
-    ],
-    correta: 0,
-    explicacao: "Soro antiofídico é usado em acidentes por serpente com manifestações sistêmicas."
-  }
-];
+    // 2. Rotinas Visuais
+    const ROTINAS = [
+      {
+        nome: "Escovar os dentes",
+        passos: [
+          "Pegar a escova de dentes",
+          "Passar creme dental",
+          "Escovar os dentes (em cima e embaixo)",
+          "Enxaguar a boca",
+          "Guardar a escova"
+        ]
+      },
+      {
+        nome: "Trocar de roupa",
+        passos: [
+          "Tirar a roupa suja",
+          "Escolher roupa limpa",
+          "Vestir a roupa limpa",
+          "Guardar roupa suja"
+        ]
+      },
+      {
+        nome: "Pedir ajuda",
+        passos: [
+          "Chegar perto de um adulto",
+          "Olhar para ele(a)",
+          "Falar ou apontar o que precisa",
+          "Ouvir a resposta"
+        ]
+      }
+    ];
 
-const bancoQuestoes = [
-  {
-    pergunta: "Como identificar um infarto agudo do miocárdio no ECG?",
-    resposta: "Elevação do segmento ST, inversão de onda T e/ou presença de ondas Q patológicas."
-  },
-  {
-    pergunta: "Quando suspeitar de sepse?",
-    resposta: "Presença de infecção com disfunção orgânica, sinais como hipotensão, taquicardia, taquipneia, lactato alto."
-  },
-  {
-    pergunta: "Quais os sinais de meningite em crianças?",
-    resposta: "Febre, irritabilidade, rigidez de nuca, vômitos, fontanela tensa (em lactentes)."
-  },
-  {
-    pergunta: "Como tratar crise asmática moderada?",
-    resposta: "Beta2-agonista inalatório, O2 se necessário, e corticoide sistêmico."
-  },
-  {
-    pergunta: "Quais causas comuns de anemia ferropriva?",
-    resposta: "Dietas pobres em ferro, perdas sanguíneas crônicas (GI), aumento de necessidades (gravidez)."
-  },
-  {
-    pergunta: "Conduta inicial em politrauma?",
-    resposta: "Seguir o ABCDE do trauma: via aérea, respiração, circulação, déficit neurológico, exposição."
-  },
-  {
-    pergunta: "Como diagnosticar pneumonia em adultos?",
-    resposta: "Clínica (tosse, febre, dor pleurítica, estertores) e RX de tórax mostrando infiltrado."
-  },
-  {
-    pergunta: "Principais causas de insuficiência renal aguda pré-renal?",
-    resposta: "Hipovolemia, choque, insuficiência cardíaca, vasodilatação excessiva."
-  },
-  {
-    pergunta: "Quando indicar antibiótico em faringite?",
-    resposta: "Faringite bacteriana (principalmente por Streptococcus pyogenes), com febre alta, exsudato, adenomegalia."
-  },
-  {
-    pergunta: "Quais sintomas clássicos da insuficiência cardíaca?",
-    resposta: "Dispneia, ortopneia, edema, fadiga, estertores crepitantes."
-  },
-  {
-    pergunta: "Exame inicial para diagnóstico de litíase renal?",
-    resposta: "Urina tipo I e USG de rins e vias urinárias."
-  },
-  {
-    pergunta: "O que é delirium?",
-    resposta: "Alteração aguda do estado mental, com confusão, flutuação da consciência, atenção prejudicada."
-  },
-  {
-    pergunta: "Como avaliar desidratação em criança?",
-    resposta: "Sinais: olhos fundos, diminuição da diurese, mucosas secas, prega cutânea."
-  },
-  {
-    pergunta: "Quando suspeitar de dengue hemorrágica?",
-    resposta: "Diminuição súbita de plaquetas, extravasamento capilar, sangramentos, dor abdominal intensa."
-  },
-  {
-    pergunta: "Qual a conduta em crise convulsiva febril simples?",
-    resposta: "Observar, controlar febre e orientar; não é necessário anticonvulsivante contínuo."
-  }
-];
+    // 3. Simulador de Conversa
+    const CONVERSAS = [
+      {
+        pergunta: "Oi! Tudo bem?",
+        opcoes: ["Sim, tudo bem!", "Não estou bem.", "Estou com sono."],
+        respostas: [
+          { texto: "Que bom! Vamos brincar?", proxima: 1 },
+          { texto: "Sinto muito. Quer conversar?", proxima: 2 },
+          { texto: "É importante descansar!", proxima: null }
+        ]
+      },
+      {
+        pergunta: "Vamos brincar?",
+        opcoes: ["Sim!", "Agora não."],
+        respostas: [
+          { texto: "Oba! Qual brinquedo você quer?", proxima: 3 },
+          { texto: "Tudo bem, podemos brincar depois.", proxima: null }
+        ]
+      },
+      {
+        pergunta: "Quer conversar?",
+        opcoes: ["Sim", "Não"],
+        respostas: [
+          { texto: "Pode me contar o que sente.", proxima: null },
+          { texto: "Tudo bem, se quiser conversar depois, estarei aqui.", proxima: null }
+        ]
+      },
+      {
+        pergunta: "Qual brinquedo você quer?",
+        opcoes: ["Carrinho", "Boneca", "Desenhar"],
+        respostas: [
+          { texto: "Carrinho é legal!", proxima: null },
+          { texto: "Boneca é divertida!", proxima: null },
+          { texto: "Desenhar é muito criativo!", proxima: null }
+        ]
+      }
+    ];
 
-// Estado global para navegação
-let estado = { secao: "menu", caso: 0, quiz: 0, quizAcertos: 0, quizRespondidas: 0 };
+    // ---------------- Funções Utilitárias ----------------
+    function falar(texto) {
+      if ('speechSynthesis' in window) {
+        const utter = new SpeechSynthesisUtterance(texto);
+        utter.lang = "pt-BR";
+        window.speechSynthesis.cancel(); // Interrompe qualquer fala anterior
+        window.speechSynthesis.speak(utter);
+      }
+    }
+    function embaralhar(array) {
+      // Shuffle array (Fisher-Yates)
+      let a = array.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+    function voltarMenu() { renderMenu(); }
 
-// ---- Renderização de Telas ----
-function render() {
-  const app = document.getElementById("app");
-  if (estado.secao === "menu") {
-    app.innerHTML = `
-      <div class="section-title" style="margin-bottom:24px;">Selecione uma opção:</div>
-      <button class="menu-btn" onclick="mudaSecao('casos')">Estudo de Caso</button>
-      <button class="menu-btn" onclick="mudaSecao('quiz')">Quiz Rápido</button>
-      <button class="menu-btn" onclick="mudaSecao('banco')">Banco de Questões</button>
-    `;
-  } else if (estado.secao === "casos") {
-    renderCaso();
-  } else if (estado.secao === "quiz") {
-    renderQuiz();
-  } else if (estado.secao === "banco") {
-    renderBanco();
-  }
-}
-window.mudaSecao = function(secao) {
-  if (secao === "casos") { estado.caso = 0; }
-  if (secao === "quiz") { estado.quiz = 0; estado.quizAcertos = 0; estado.quizRespondidas = 0; }
-  estado.secao = secao;
-  render();
-}
+    // -------------------- Renderizações --------------------
 
-// -------- Estudo de Caso -----------
-function renderCaso() {
-  const c = casos[estado.caso];
-  let html = `
-    <div class="section-title">Estudo de Caso (${estado.caso+1}/${casos.length})</div>
-    <div class="caso-box">
-      <div class="caso-titulo">${c.titulo}</div>
-      <div class="caso-enunciado">${c.enunciado}</div>
-      <div class="caso-pergunta">${c.pergunta}</div>
-      <div class="alternativas">
-        ${c.alternativas.map((alt,i)=>`
-          <button class="alt-btn" id="caso-alt-${i}" onclick="respondeCaso(${i})">${alt}</button>
-        `).join('')}
-      </div>
-      <div id="caso-feedback"></div>
-      <div class="caso-nav">
-        <button class="nav-btn" onclick="casoAnterior()" ${estado.caso===0?'disabled':''}>Anterior</button>
-        <button class="nav-btn" onclick="casoProximo()" ${estado.caso===casos.length-1?'disabled':''}>Próximo</button>
-      </div>
-    </div>
-    <button class="voltar-btn" onclick="mudaSecao('menu')">Voltar ao menu</button>
-  `;
-  document.getElementById("app").innerHTML = html;
-}
-window.respondeCaso = function(i) {
-  const c = casos[estado.caso];
-  let btns = document.querySelectorAll('.alt-btn');
-  btns.forEach((btn,ix)=>{
-    btn.classList.remove('certa','errada','selected');
-    if (ix === i) btn.classList.add(ix===c.correta ? 'certa':'errada');
-    if (ix === c.correta) btn.classList.add('certa');
-    btn.disabled = true;
-  });
-  const fb = document.getElementById('caso-feedback');
-  if (i === c.correta) {
-    fb.innerHTML = `<div class="feedback ok">Correto! <span style="font-weight:400">${c.feedback}</span></div>`;
-  } else {
-    fb.innerHTML = `<div class="feedback erro">Errado! <span style="font-weight:400">${c.feedback}</span></div>`;
-  }
-}
-window.casoProximo = function() {
-  if (estado.caso < casos.length-1) {
-    estado.caso++;
-    renderCaso();
-  }
-}
-window.casoAnterior = function() {
-  if (estado.caso > 0) {
-    estado.caso--;
-    renderCaso();
-  }
-}
-
-// ----------- Quiz --------------
-function renderQuiz() {
-  if (estado.quiz >= quizQuestoes.length) {
-    document.getElementById("app").innerHTML = `
-      <div class="section-title">Quiz Rápido – Placar Final</div>
-      <div class="quiz-box" style="align-items:center">
-        <div style="font-size:1.7rem;font-weight:600;color:var(--azul);margin-bottom:14px;">${estado.quizAcertos} / ${quizQuestoes.length} acertos</div>
-        <div class="placar">Fim do quiz!</div>
-        <button class="nav-btn" onclick="mudaSecao('menu')">Voltar ao menu</button>
-      </div>
-    `;
-    return;
-  }
-  const q = quizQuestoes[estado.quiz];
-  let html = `
-    <div class="section-title">Quiz Rápido (${estado.quiz+1}/${quizQuestoes.length})</div>
-    <div class="quiz-box">
-      <div class="quiz-pergunta">${q.pergunta}</div>
-      <div class="quiz-alternativas">
-        ${q.alternativas.map((alt,i)=>`
-          <button class="quiz-alt-btn" id="quiz-alt-${i}" onclick="respondeQuiz(${i})">${alt}</button>
-        `).join('')}
-      </div>
-      <div id="quiz-feedback"></div>
-      <div class="placar">Placar: ${estado.quizAcertos} de ${estado.quizRespondidas} perguntas</div>
-    </div>
-    <button class="voltar-btn" onclick="mudaSecao('menu')">Voltar ao menu</button>
-  `;
-  document.getElementById("app").innerHTML = html;
-}
-window.respondeQuiz = function(i) {
-  const q = quizQuestoes[estado.quiz];
-  let btns = document.querySelectorAll('.quiz-alt-btn');
-  btns.forEach((btn,ix)=>{
-    btn.classList.remove('certa','errada','selected');
-    if (ix === i) btn.classList.add(ix===q.correta ? 'certa':'errada');
-    if (ix === q.correta) btn.classList.add('certa');
-    btn.disabled = true;
-  });
-  const fb = document.getElementById('quiz-feedback');
-  if (i === q.correta) {
-    fb.innerHTML = `<div class="feedback ok">Correto! <span style="font-weight:400">${q.explicacao}</span></div>`;
-    estado.quizAcertos++;
-  } else {
-    fb.innerHTML = `<div class="feedback erro">Errado! <span style="font-weight:400">${q.explicacao}</span></div>`;
-  }
-  estado.quizRespondidas++;
-  setTimeout(()=>{
-    estado.quiz++;
-    renderQuiz();
-  }, 1450);
-}
-
-// ---------- Banco de Questões --------------
-function renderBanco() {
-  document.getElementById("app").innerHTML = `
-    <div class="section-title">Banco de Questões Abertas</div>
-    <div class="banco-box">
-      ${bancoQuestoes.map(q=>`
-        <div class="banco-qst">
-          <div class="banco-pergunta">Q: ${q.pergunta}</div>
-          <div class="banco-resposta">R: ${q.resposta}</div>
+    // Menu Central
+    function renderMenu() {
+      document.getElementById('mainContainer').innerHTML = `
+        <h1>App Social Infantil</h1>
+        <button class="menu-btn" onclick="renderEmocoes()">Treinando Emoções</button>
+        <button class="menu-btn" onclick="renderRotinas()">Rotinas Visuais</button>
+        <button class="menu-btn" onclick="renderChat()">Simulador de Conversa</button>
+        <div style="margin-top:36px; font-size:0.97em;color:#b69f53;opacity:.8;">
+          Feito para auxiliar o desenvolvimento social de crianças.<br><span style="font-size:0.9em">💛</span>
         </div>
-      `).join('')}
-      <button class="banco-voltar" onclick="mudaSecao('menu')">Voltar ao menu</button>
-    </div>
-  `;
-}
+      `;
+      window.speechSynthesis.cancel();
+    }
 
-render();
-</script>
+    // --- Treinando Emoções ---
+    let rodadaEmocao = 0, acertosEmocao = 0, tentandoEmocao = false;
+    function renderEmocoes(iniciar = true) {
+      if (iniciar) {
+        rodadaEmocao = 0;
+        acertosEmocao = 0;
+        tentandoEmocao = false;
+        EMOCOES_RODADA_EMBARALHADA = embaralhar(EMOCOES_RODADA);
+      }
+      if (rodadaEmocao >= EMOCOES_RODADA_EMBARALHADA.length) {
+        // Fim da atividade
+        document.getElementById('mainContainer').innerHTML = `
+          <h2>Fim da atividade!</h2>
+          <div class="score">Você acertou <b>${acertosEmocao}</b> de <b>${EMOCOES_RODADA_EMBARALHADA.length}</b> emoções.</div>
+          <button class="menu-btn-small" onclick="renderMenu()">Voltar ao menu</button>
+          <button class="next-btn" onclick="renderEmocoes()">Fazer novamente</button>
+        `;
+        falar("Fim da atividade. Parabéns!");
+        return;
+      }
+      let q = EMOCOES_RODADA_EMBARALHADA[rodadaEmocao];
+      let opcoes = embaralhar(EMOCOES); // Emojis embaralhados
+      let perguntaTxt = `Mostre qual é a emoção: "${q.pergunta}"`;
+      document.getElementById('mainContainer').innerHTML = `
+        <h2>Treinando Emoções</h2>
+        <div class="emotion-q" id="emoPergunta">${perguntaTxt}</div>
+        <div class="emoji-cards" id="emojiCards"></div>
+        <div class="feedback" id="emoFeedback"></div>
+        <div class="score">Acertos: <b>${acertosEmocao}</b> de ${EMOCOES_RODADA_EMBARALHADA.length}</div>
+        <button class="menu-btn-small" onclick="renderMenu()">Voltar ao menu</button>
+      `;
+      // Monta opções de emoji
+      let emojiDiv = document.getElementById('emojiCards');
+      opcoes.forEach(emo => {
+        let btn = document.createElement('div');
+        btn.className = 'emoji-card';
+        btn.innerText = emo.emoji;
+        btn.onclick = () => selecionarEmocao(emo.emoji, q.correta);
+        emojiDiv.appendChild(btn);
+      });
+      // Falar emoção
+      falar(q.pergunta);
+    }
+    function selecionarEmocao(emoji, correta) {
+      let fb = document.getElementById('emoFeedback');
+      if (tentandoEmocao) return; // Evita múltiplos cliques rápidos
+      tentandoEmocao = true;
+      if (emoji === correta) {
+        fb.textContent = "Muito bem!";
+        fb.style.color = "#1bb83c";
+        acertosEmocao++;
+        falar("Muito bem!");
+        setTimeout(() => { rodadaEmocao++; tentandoEmocao = false; renderEmocoes(false); }, 1200);
+      } else {
+        fb.textContent = "Tente novamente!";
+        fb.style.color = "#d1641b";
+        falar("Tente novamente");
+        tentandoEmocao = false;
+      }
+    }
+
+    // --- Rotinas Visuais ---
+    let rotinaAtual = null, passosMarcados = [];
+    function renderRotinas() {
+      rotinaAtual = null;
+      document.getElementById('mainContainer').innerHTML = `
+        <h2>Rotinas Visuais</h2>
+        <div class="rotina-list">
+          ${ROTINAS.map((r,i) => `<div class="rotina-item" onclick="iniciarRotina(${i})">${r.nome}</div>`).join('')}
+        </div>
+        <button class="menu-btn-small" onclick="renderMenu()">Voltar ao menu</button>
+      `;
+    }
+    function iniciarRotina(idx) {
+      rotinaAtual = ROTINAS[idx];
+      passosMarcados = Array(rotinaAtual.passos.length).fill(false);
+      renderPassosRotina();
+    }
+    function renderPassosRotina() {
+      let passos = rotinaAtual.passos.map((p,i) =>
+        `<div class="passo-item" onclick="togglePasso(${i})">
+          <input type="checkbox" id="passo${i}" ${passosMarcados[i]?'checked':''} onclick="event.stopPropagation();togglePasso(${i});"/>
+          ${p}
+        </div>`).join('');
+      document.getElementById('mainContainer').innerHTML = `
+        <h2>${rotinaAtual.nome}</h2>
+        <div class="passos-list">${passos}</div>
+        <button class="menu-btn-small" onclick="renderRotinas()">Trocar de rotina</button>
+        <button class="menu-btn-small" onclick="renderMenu()">Voltar ao menu</button>
+      `;
+      checarFimRotina();
+    }
+    function togglePasso(i) {
+      passosMarcados[i] = !passosMarcados[i];
+      renderPassosRotina();
+    }
+    function checarFimRotina() {
+      if (passosMarcados.every(x=>x)) {
+        document.querySelector('.passos-list').insertAdjacentHTML('afterend',`
+          <div class="parabens">Você completou toda a rotina! <span style="font-size:1.5em">🎉</span></div>
+          <button class="next-btn" onclick="iniciarRotina(${ROTINAS.indexOf(rotinaAtual)})">Fazer novamente</button>
+        `);
+        falar("Você completou toda a rotina! Parabéns!");
+      }
+    }
+
+    // --- Simulador de Conversa ---
+    let chatHist = [], chatEtapa = 0;
+    function renderChat() {
+      chatHist = [];
+      chatEtapa = 0;
+      renderChatTela();
+    }
+    function renderChatTela() {
+      let chat = '';
+      for (let h of chatHist) {
+        chat += `<div class="chat-msg">${h}</div>`;
+      }
+      let etapa = CONVERSAS[chatEtapa];
+      chat += `<div class="chat-msg">${etapa.pergunta}</div>`;
+      let opcoes = etapa.opcoes.map((o,i) =>
+        `<button class="chat-option-btn" onclick="chatResponder(${i})">${o}</button>`).join('');
+      document.getElementById('mainContainer').innerHTML = `
+        <h2>Simulador de Conversa</h2>
+        <div class="chat-box" id="chatBox">
+          ${chat}
+        </div>
+        <div class="chat-options">${opcoes}</div>
+        <button class="menu-btn-small" onclick="renderMenu()">Voltar ao menu</button>
+      `;
+      falar(etapa.pergunta);
+    }
+    function chatResponder(idx) {
+      let etapa = CONVERSAS[chatEtapa];
+      chatHist.push(`<span class="chat-user">${etapa.opcoes[idx]}</span>`);
+      let resp = etapa.respostas[idx];
+      chatHist.push(resp.texto);
+      if (resp.proxima === null) {
+        // Fim da conversa simulada
+        document.getElementById('mainContainer').innerHTML = `
+          <h2>Simulador de Conversa</h2>
+          <div class="chat-box" id="chatBox">
+            ${chatHist.map(m=>`<div class="chat-msg${m.includes('chat-user')?' chat-user':''}">${m}</div>`).join('')}
+          </div>
+          <div class="parabens" style="margin-top:6px;">Fim da conversa!</div>
+          <button class="menu-btn-small" onclick="renderChat()">Fazer novamente</button>
+          <button class="menu-btn-small" onclick="renderMenu()">Voltar ao menu</button>
+        `;
+        falar("Fim da conversa. Muito bem!");
+      } else {
+        chatEtapa = resp.proxima;
+        setTimeout(renderChatTela, 650);
+      }
+    }
+
+    // -------- Inicialização --------
+    window.renderMenu = renderMenu;
+    window.renderEmocoes = renderEmocoes;
+    window.renderRotinas = renderRotinas;
+    window.iniciarRotina = iniciarRotina;
+    window.togglePasso = togglePasso;
+    window.renderChat = renderChat;
+    window.chatResponder = chatResponder;
+
+    // Ao abrir, mostra menu
+    renderMenu();
+  </script>
 </body>
 </html>

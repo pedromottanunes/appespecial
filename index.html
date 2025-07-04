@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>SimulaMed – Casos Clínicos Interativos</title>
+  <meta name="viewport" content="width=480, initial-scale=1">
+  <style>
+    body {
+      font-family: 'Poppins', Arial, sans-serif;
+      background: linear-gradient(135deg, #eaf9ff 0%, #fcf7e8 100%);
+      margin: 0;
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    h1 { margin-top: 22px; color: #147bb7; font-size: 2.1rem; }
+    #app {
+      background: #fff; border-radius: 16px; box-shadow: 0 2px 18px #c6e6f7aa;
+      padding: 30px 20px; margin-top: 18px; width: 96vw; max-width: 500px;
+      display: flex; flex-direction: column; align-items: center; min-height: 380px;
+    }
+    .tela { display: none; flex-direction: column; align-items: center; gap: 18px; width: 100%; }
+    .tela.ativa { display: flex; }
+    .menu-btn {
+      background: #147bb7; color: #fff; border: none; border-radius: 8px;
+      padding: 15px 12px; font-size: 1.18rem; font-weight: bold;
+      width: 96%; margin: 12px auto 0 auto; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .menu-btn:active { background: #0c517b; }
+    .voltar-btn {
+      background: #eee; color: #147bb7; border: 1px solid #a8d3ef;
+      font-size: 1rem; margin-top: 20px; padding: 10px 22px;
+      border-radius: 8px; font-weight: 600; cursor: pointer;
+    }
+    .voltar-btn:active { background: #e3f2fd; }
+    .caso-titulo { color: #195680; font-weight: 700; font-size: 1.25rem; margin-bottom: 8px; }
+    .caso-enunciado { font-size: 1.09rem; color: #30363c; margin-bottom: 5px; }
+    .caso-pergunta { font-size: 1.12rem; color: #6e543e; margin-top: 13px; margin-bottom:6px;}
+    .alternativas { display: flex; flex-direction: column; gap: 10px; margin: 0 auto; width: 99%; }
+    .alt-btn {
+      background: #eaf3fb; color: #195680; border: 2px solid #a8d3ef;
+      border-radius: 8px; font-size: 1.08rem; font-weight: 600;
+      padding: 13px 6px; text-align: left; cursor: pointer; transition: background 0.2s;
+    }
+    .alt-btn:active { background: #b4e1fa; }
+    .alt-btn.correta { background: #e3fae5; border-color: #58c171; color: #217546; }
+    .alt-btn.errada { background: #ffeaea; border-color: #e56c6c; color: #be3c36; }
+    .caso-feedback { margin-top: 8px; font-weight: 600; min-height: 25px; }
+    .caso-nav { margin-top: 12px; display: flex; gap: 12px;}
+    .caso-nav-btn {
+      background: #f7c16c; color: #8b5912; border: none; border-radius: 6px;
+      padding: 8px 16px; font-size: 1rem; font-weight: 600; cursor: pointer;
+    }
+    .caso-nav-btn:active { background: #e5a92e; }
+    .quiz-questao { font-size:1.08rem;margin-bottom:7px; }
+    .quiz-acerto { color: #3a913a; font-weight: bold;}
+    .quiz-erro { color: #b02222; font-weight: bold;}
+    .banco-lista { width:97%; margin:0 auto; }
+    .banco-item { background:#f6fcff; border-radius:7px; margin-bottom:6px; padding:10px; border:1px solid #d9eaf8; }
+    .banco-pergunta { font-weight:600; color:#195680;}
+    .banco-resposta { margin-top:2px; color:#377e2c; }
+  </style>
+</head>
+<body>
+  <h1>SimulaMed</h1>
+  <div id="app">
+    <!-- Menu Central -->
+    <div class="tela ativa" id="menu">
+      <div style="margin-bottom:15px;font-size:1.18rem;color:#195680;">
+        Selecione uma atividade:
+      </div>
+      <button class="menu-btn" onclick="abrirTela('caso')">Estudo de Caso</button>
+      <button class="menu-btn" onclick="abrirTela('quiz')">Quiz Rápido</button>
+      <button class="menu-btn" onclick="abrirTela('banco')">Banco de Questões</button>
+    </div>
+    <!-- Estudo de Caso -->
+    <div class="tela" id="caso">
+      <div class="caso-titulo" id="caso-titulo"></div>
+      <div class="caso-enunciado" id="caso-enunciado"></div>
+      <div class="caso-pergunta" id="caso-pergunta"></div>
+      <div class="alternativas" id="caso-alternativas"></div>
+      <div class="caso-feedback" id="caso-feedback"></div>
+      <div class="caso-nav">
+        <button class="caso-nav-btn" onclick="casoAnterior()">Anterior</button>
+        <button class="caso-nav-btn" onclick="proximoCaso()">Próximo</button>
+      </div>
+      <button class="voltar-btn" onclick="voltarMenu()">Voltar ao menu</button>
+    </div>
+    <!-- Quiz Rápido -->
+    <div class="tela" id="quiz">
+      <div class="quiz-questao" id="quiz-questao"></div>
+      <div class="alternativas" id="quiz-alternativas"></div>
+      <div id="quiz-feedback"></div>
+      <div style="margin-top:10px;font-size:.97rem;">
+        <span id="quiz-placar"></span>
+      </div>
+      <button class="voltar-btn" onclick="voltarMenu()">Voltar ao menu</button>
+    </div>
+    <!-- Banco de Questões -->
+    <div class="tela" id="banco">
+      <div style="font-size:1.13rem;font-weight:600;color:#147bb7;margin-bottom:10px;">Questões disponíveis:</div>
+      <div class="banco-lista" id="banco-lista"></div>
+      <button class="voltar-btn" onclick="voltarMenu()">Voltar ao menu</button>
+    </div>
+  </div>
+  <script>
+    // ------- Dados exemplo: casos, quiz e banco -------
+    const casos = [
+      {
+        titulo: "Dor abdominal aguda",
+        enunciado: "Paciente feminino, 23 anos, chega à emergência com dor abdominal intensa no quadrante inferior direito, febre e náuseas. Ao exame físico: dor à palpação, defesa abdominal e sinal de Blumberg positivo.",
+        pergunta: "Qual o diagnóstico mais provável?",
+        alternativas: [
+          { txt: "Apendicite aguda", correta: true },
+          { txt: "Colecistite aguda", correta: false },
+          { txt: "Pancreatite aguda", correta: false },
+          { txt: "Gastrite", correta: false }
+        ],
+        feedback: "O quadro clínico é típico de apendicite aguda, que cursa com dor no quadrante inferior direito, febre e sinal de Blumberg positivo."
+      },
+      {
+        titulo: "Dispneia súbita",
+        enunciado: "Homem, 52 anos, tabagista, com história de DPOC, apresenta dispneia súbita, dor torácica e hemoptise.",
+        pergunta: "Qual o diagnóstico mais provável?",
+        alternativas: [
+          { txt: "Embolia pulmonar", correta: true },
+          { txt: "Pneumonia", correta: false },
+          { txt: "Infarto agudo do miocárdio", correta: false },
+          { txt: "Edema agudo de pulmão", correta: false }
+        ],
+        feedback: "Dispneia súbita, dor torácica e hemoptise em paciente de risco sugerem embolia pulmonar."
+      },
+      {
+        titulo: "Crise convulsiva",
+        enunciado: "Mulher, 28 anos, gestante de 32 semanas, apresenta cefaleia intensa, pressão 170x110 mmHg e crise convulsiva.",
+        pergunta: "Qual o diagnóstico mais provável?",
+        alternativas: [
+          { txt: "Eclâmpsia", correta: true },
+          { txt: "Epilepsia", correta: false },
+          { txt: "AVC hemorrágico", correta: false },
+          { txt: "Pré-eclâmpsia leve", correta: false }
+        ],
+        feedback: "Crise convulsiva com hipertensão na gestação é diagnóstico de eclâmpsia."
+      },
+      {
+        titulo: "Poliúria e polidipsia",
+        enunciado: "Homem, 44 anos, refere poliúria, polidipsia, perda de peso e glicemia em jejum de 270 mg/dL.",
+        pergunta: "Qual o diagnóstico mais provável?",
+        alternativas: [
+          { txt: "Diabetes Mellitus tipo 2", correta: true },
+          { txt: "Hipertireoidismo", correta: false },
+          { txt: "Insuficiência renal", correta: false },
+          { txt: "Doença de Addison", correta: false }
+        ],
+        feedback: "Quadro típico de DM2 descompensado, com sintomas clássicos e glicemia elevada."
+      },
+      {
+        titulo: "Dor torácica em jovem",
+        enunciado: "Homem, 20 anos, saudável, dor torácica súbita após exercício físico. MV abolido à direita, hiperressonância percussão.",
+        pergunta: "Qual o diagnóstico?",
+        alternativas: [
+          { txt: "Pneumotórax espontâneo", correta: true },
+          { txt: "Pneumonia", correta: false },
+          { txt: "Asma", correta: false },
+          { txt: "Infarto pulmonar", correta: false }
+        ],
+        feedback: "Dor súbita, MV abolido e hiperressonância são típicos de pneumotórax espontâneo."
+      },
+      {
+        titulo: "Palpitações e sudorese",
+        enunciado: "Mulher, 35 anos, queixa de palpitações, sudorese, tremores e intolerância ao calor.",
+        pergunta: "Hipótese diagnóstica mais provável:",
+        alternativas: [
+          { txt: "Hipertireoidismo", correta: true },
+          { txt: "Feocromocitoma", correta: false },
+          { txt: "Ansiedade", correta: false },
+          { txt: "Insuficiência cardíaca", correta: false }
+        ],
+        feedback: "Sintomas clássicos de hipertireoidismo."
+      },
+      {
+        titulo: "Aumento de linfonodos",
+        enunciado: "Criança, 5 anos, com linfadenomegalia cervical, febre e faringite exsudativa.",
+        pergunta: "Qual o agente etiológico mais comum?",
+        alternativas: [
+          { txt: "Vírus Epstein-Barr", correta: true },
+          { txt: "Estreptococo beta-hemolítico", correta: false },
+          { txt: "Adenovírus", correta: false },
+          { txt: "Citomegalovírus", correta: false }
+        ],
+        feedback: "Mononucleose infecciosa, causada pelo Epstein-Barr, cursa com este quadro."
+      },
+      {
+        titulo: "Lesão de pele pruriginosa",
+        enunciado: "Mulher, 42 anos, lesão pruriginosa em face extensora dos braços, descamativa.",
+        pergunta: "Qual a hipótese diagnóstica?",
+        alternativas: [
+          { txt: "Psoríase", correta: true },
+          { txt: "Eczema atópico", correta: false },
+          { txt: "Tinea corporis", correta: false },
+          { txt: "Pênfigo vulgar", correta: false }
+        ],
+        feedback: "Lesões descamativas em áreas extensoras sugerem psoríase."
+      },
+      {
+        titulo: "Dor lombar e febre",
+        enunciado: "Homem, 33 anos, dor lombar intensa, febre, disúria e piúria.",
+        pergunta: "Diagnóstico mais provável:",
+        alternativas: [
+          { txt: "Pielonefrite aguda", correta: true },
+          { txt: "Cistite", correta: false },
+          { txt: "Hérnia de disco", correta: false },
+          { txt: "Lombalgia crônica", correta: false }
+        ],
+        feedback: "Dor lombar, febre e piúria são típicos de pielonefrite aguda."
+      },
+      {
+        titulo: "Paciente com icterícia",
+        enunciado: "Homem, 60 anos, etilista, apresenta icterícia, ascite e ginecomastia.",
+        pergunta: "Qual o diagnóstico mais provável?",
+        alternativas: [
+          { txt: "Cirrose hepática", correta: true },
+          { txt: "Colelitíase", correta: false },
+          { txt: "Insuficiência cardíaca", correta: false },
+          { txt: "Hepatite viral aguda", correta: false }
+        ],
+        feedback: "Sinais clássicos de cirrose hepática descompensada."
+      },
+      {
+        titulo: "Dispneia e sibilância em criança",
+        enunciado: "Criança, 7 anos, histórico de rinite, apresenta dispneia, tosse e sibilos à ausculta.",
+        pergunta: "Diagnóstico mais provável:",
+        alternativas: [
+          { txt: "Asma", correta: true },
+          { txt: "Bronquiolite", correta: false },
+          { txt: "Pneumonia bacteriana", correta: false },
+          { txt: "Laringotraqueíte", correta: false }
+        ],
+        feedback: "Dispneia e sibilância em criança com atopia indicam asma."
+      },
+      {
+        titulo: "Quadro demencial",
+        enunciado: "Mulher, 76 anos, progressiva perda de memória e orientação, sem déficits motores.",
+        pergunta: "Qual o diagnóstico mais provável?",
+        alternativas: [
+          { txt: "Doença de Alzheimer", correta: true },
+          { txt: "Acidente vascular cerebral", correta: false },
+          { txt: "Parkinsonismo", correta: false },
+          { txt: "Hipotireoidismo", correta: false }
+        ],
+        feedback: "Perda cognitiva progressiva sugere Alzheimer."
+      },
+      {
+        titulo: "Hemorragia pós-parto",
+        enunciado: "Mulher, 30 anos, pós-parto imediato, sangramento vaginal abundante, útero amolecido.",
+        pergunta: "Diagnóstico mais provável:",
+        alternativas: [
+          { txt: "Atonia uterina", correta: true },
+          { txt: "Trauma de canal", correta: false },
+          { txt: "Coagulopatia", correta: false },
+          { txt: "Restos ovulares", correta: false }
+        ],
+        feedback: "A principal causa de hemorragia pós-parto é atonia uterina."
+      },
+      {
+        titulo: "Dor torácica e sudorese",
+        enunciado: "Homem, 58 anos, tabagista, dor precordial intensa irradiando para braço esquerdo, sudorese fria.",
+        pergunta: "Qual a conduta inicial?",
+        alternativas: [
+          { txt: "Acesso venoso, AAS e monitorização", correta: true },
+          { txt: "Antibiótico endovenoso", correta: false },
+          { txt: "Broncodilatador inalatório", correta: false },
+          { txt: "Metformina oral", correta: false }
+        ],
+        feedback: "Conduta inicial em IAM: acesso venoso, AAS e monitorização."
+      },
+      {
+        titulo: "Paralisia facial aguda",
+        enunciado: "Homem, 29 anos, paralisia facial periférica à direita, sem outros déficits neurológicos.",
+        pergunta: "Hipótese diagnóstica mais provável:",
+        alternativas: [
+          { txt: "Paralisia de Bell", correta: true },
+          { txt: "AVC isquêmico", correta: false },
+          { txt: "Esclerose múltipla", correta: false },
+          { txt: "Neoplasia cerebral", correta: false }
+        ],
+        feedback: "Paralisia facial periférica isolada indica Paralisia de Bell."
+      },
+      {
+        titulo: "Tosse crônica e emagrecimento",
+        enunciado: "Homem, 47 anos, tosse crônica, hemoptise e emagrecimento. RX: infiltrado apical cavitado.",
+        pergunta: "Diagnóstico mais provável:",
+        alternativas: [
+          { txt: "Tuberculose pulmonar", correta: true },
+          { txt: "Pneumonia viral", correta: false },
+          { txt: "Câncer de pulmão", correta: false },
+          { txt: "Bronquiectasia", correta: false }
+        ],
+        feedback: "Tosse crônica, hemoptise e RX cavitado: tuberculose pulmonar."
+      }
+    ];
+
+    // -------- Quiz Rápido (12 questões) -------------
+    const quizQuestoes = [
+      {
+        q: "Qual destes exames é o mais indicado para confirmação de trombose venosa profunda?",
+        a: [
+          { t: "Angiotomografia", c: false },
+          { t: "Ultrassom Doppler", c: true },
+          { t: "Radiografia simples", c: false },
+          { t: "Hemograma", c: false }
+        ]
+      },
+      {
+        q: "O que significa sinal de Blumberg positivo?",
+        a: [
+          { t: "Presença de dor à descompressão brusca do abdome", c: true },
+          { t: "Febre e icterícia associadas", c: false },
+          { t: "Ruídos hidroaéreos aumentados", c: false },
+          { t: "Ausência de dor ao movimento", c: false }
+        ]
+      },
+      {
+        q: "Qual é a complicação mais comum do infarto agudo do miocárdio nas primeiras horas?",
+        a: [
+          { t: "Arritmias", c: true },
+          { t: "AVC isquêmico", c: false },
+          { t: "Pericardite", c: false },
+          { t: "Endocardite", c: false }
+        ]
+      },
+      {
+        q: "O principal agente da pneumonia adquirida na comunidade em adultos é:",
+        a: [
+          { t: "Streptococcus pneumoniae", c: true },
+          { t: "Haemophilus influenzae", c: false },
+          { t: "Klebsiella pneumoniae", c: false },
+          { t: "Mycoplasma pneumoniae", c: false }
+        ]
+      },
+      {
+        q: "Antídoto para intoxicação por paracetamol:",
+        a: [
+          { t: "N-acetilcisteína", c: true },
+          { t: "Flumazenil", c: false },
+          { t: "Naloxona", c: false },
+          { t: "Atropina", c: false }
+        ]
+      },
+      {
+        q: "Qual a tríade clássica da meningite bacteriana?",
+        a: [
+          { t: "Febre, cefaleia e rigidez de nuca", c: true },
+          { t: "Tosse, dispneia e cianose", c: false },
+          { t: "Diarreia, vômitos e icterícia", c: false },
+          { t: "Edema, proteinúria e hipertensão", c: false }
+        ]
+      },
+      {
+        q: "No hipotiroidismo, espera-se encontrar:",
+        a: [
+          { t: "TSH aumentado e T4 diminuído", c: true },
+          { t: "TSH diminuído e T4 aumentado", c: false },
+          { t: "TSH normal e T4 aumentado", c: false },
+          { t: "TSH diminuído e T4 diminuído", c: false }
+        ]
+      },
+      {
+        q: "Qual é o achado clássico na radiografia do tórax de criança com bronquiolite viral?",
+        a: [
+          { t: "Hiperinsuflação pulmonar", c: true },
+          { t: "Atelectasia segmentar", c: false },
+          { t: "Derrame pleural", c: false },
+          { t: "Infiltrado alveolar difuso", c: false }
+        ]
+      },
+      {
+        q: "O principal sinal de desidratação grave em crianças é:",
+        a: [
+          { t: "Letargia ou inconsciência", c: true },
+          { t: "Olhos fundos", c: false },
+          { t: "Diminuição do turgor da pele", c: false },
+          { t: "Sede intensa", c: false }
+        ]
+      },
+      {
+        q: "Na asma aguda grave, o uso imediato é indicado de:",
+        a: [
+          { t: "Broncodilatador inalatório", c: true },
+          { t: "Antibiótico endovenoso", c: false },
+          { t: "Bloqueador beta", c: false },
+          { t: "Diurético de alça", c: false }
+        ]
+      },
+      {
+        q: "Qual a conduta inicial em anafilaxia?",
+        a: [
+          { t: "Adrenalina intramuscular", c: true },
+          { t: "Corticoide oral", c: false },
+          { t: "Anti-histamínico oral", c: false },
+          { t: "Antibiótico endovenoso", c: false }
+        ]
+      },
+      {
+        q: "Paciente com cefaleia súbita e rigidez de nuca. Qual exame deve ser realizado primeiro?",
+        a: [
+          { t: "Tomografia de crânio", c: true },
+          { t: "Punção lombar", c: false },
+          { t: "EEG", c: false },
+          { t: "Raio-x cervical", c: false }
+        ]
+      }
+    ];
+
+    // --------- Banco de Questões (15) ----------
+    const bancoQuestoes = [
+      {
+        pergunta: "Paciente diabético tipo 1 apresenta confusão mental e sudorese. O que deve ser feito imediatamente?",
+        resposta: "Oferecer carboidrato de absorção rápida, como suco ou glicose oral."
+      },
+      {
+        pergunta: "Qual o exame padrão-ouro para diagnóstico de embolia pulmonar?",
+        resposta: "Angiotomografia pulmonar."
+      },
+      {
+        pergunta: "Qual o tratamento inicial da insuficiência cardíaca aguda descompensada?",
+        resposta: "Oxigenoterapia, diuréticos, vasodilatadores e monitorização."
+      },
+      {
+        pergunta: "Nome da tríade clínica da síndrome de Cushing.",
+        resposta: "Obesidade central, fácies em lua cheia, fraqueza muscular proximal."
+      },
+      {
+        pergunta: "Na suspeita de meningite bacteriana, qual o primeiro passo?",
+        resposta: "Iniciar antibiótico empírico imediatamente, após coleta de hemoculturas."
+      },
+      {
+        pergunta: "Indicação clássica de cesariana absoluta.",
+        resposta: "Placenta prévia central total."
+      },
+      {
+        pergunta: "Sinal clássico da insuficiência aórtica à ausculta.",
+        resposta: "Sopro diastólico aspirativo em foco aórtico."
+      },
+      {
+        pergunta: "Exame de escolha para avaliação de colelitíase.",
+        resposta: "Ultrassonografia de abdome."
+      },
+      {
+        pergunta: "Profilaxia medicamentosa indicada em contato domiciliar de paciente com meningite meningocócica.",
+        resposta: "Rifampicina."
+      },
+      {
+        pergunta: "Principal causa de hipercalcemia em adultos.",
+        resposta: "Hiperparatireoidismo primário."
+      },
+      {
+        pergunta: "Agente etiológico mais comum da endocardite em usuários de drogas EV.",
+        resposta: "Staphylococcus aureus."
+      },
+      {
+        pergunta: "Paciente com hipotensão, pele fria, pulso filiforme e enchimento capilar lento.",
+        resposta: "Choque hipovolêmico."
+      },
+      {
+        pergunta: "Exame de triagem neonatal obrigatório para fenilcetonúria.",
+        resposta: "Teste do pezinho."
+      },
+      {
+        pergunta: "Conduta inicial em parada cardiorrespiratória presenciada.",
+        resposta: "Iniciar RCP imediatamente e acionar o serviço de emergência."
+      },
+      {
+        pergunta: "Principal marcador laboratorial da lesão miocárdica aguda.",
+        resposta: "Troponina."
+      }
+    ];
+
+    // --------- Controle de telas ----------
+    let casoIdx = 0;
+
+    function abrirTela(tela) {
+      document.querySelectorAll('.tela').forEach(e=>e.classList.remove('ativa'));
+      document.getElementById(tela).classList.add('ativa');
+      if (tela==='caso') exibirCaso(casoIdx);
+      if (tela==='quiz') iniciarQuiz();
+      if (tela==='banco') exibirBancoQuestoes();
+    }
+    function voltarMenu() {
+      document.querySelectorAll('.tela').forEach(e=>e.classList.remove('ativa'));
+      document.getElementById('menu').classList.add('ativa');
+    }
+    // -------- Estudo de Caso -----------
+
+    function exibirCaso(idx=0) {
+      casoIdx = idx;
+      const caso = casos[casoIdx];
+      document.getElementById('caso-titulo').textContent = caso.titulo;
+      document.getElementById('caso-enunciado').textContent = caso.enunciado;
+      document.getElementById('caso-pergunta').textContent = caso.pergunta;
+      const area = document.getElementById('caso-alternativas');
+      area.innerHTML = '';
+      caso.alternativas.forEach((alt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'alt-btn';
+        btn.textContent = alt.txt;
+        btn.onclick = () => {
+          if (alt.correta) {
+            btn.classList.add('correta');
+            document.getElementById('caso-feedback').textContent = "Correto! " + caso.feedback;
+          } else {
+            btn.classList.add('errada');
+            document.getElementById('caso-feedback').textContent = "Resposta incorreta. " + caso.feedback;
+          }
+          Array.from(area.children).forEach(b=>b.disabled=true);
+        };
+        area.appendChild(btn);
+      });
+      document.getElementById('caso-feedback').textContent = "";
+    }
+    function proximoCaso() {
+      casoIdx = (casoIdx + 1) % casos.length;
+      exibirCaso(casoIdx);
+    }
+    function casoAnterior() {
+      casoIdx = (casoIdx - 1 + casos.length) % casos.length;
+      exibirCaso(casoIdx);
+    }
+
+    // -------- Quiz Rápido -------------
+    let quizAtual = 0, quizAcertos = 0;
+    function iniciarQuiz() {
+      quizAtual = 0; quizAcertos = 0;
+      mostrarQuiz();
+    }
+    function mostrarQuiz() {
+      if (quizAtual >= quizQuestoes.length) {
+        document.getElementById('quiz-questao').textContent = "Fim do quiz!";
+        document.getElementById('quiz-alternativas').innerHTML = "";
+        document.getElementById('quiz-feedback').innerHTML = `<span class="quiz-acerto">Você acertou ${quizAcertos} de ${quizQuestoes.length} questões.</span>`;
+        document.getElementById('quiz-placar').textContent = "";
+        return;
+      }
+      let q = quizQuestoes[quizAtual];
+      document.getElementById('quiz-questao').textContent = q.q;
+      const area = document.getElementById('quiz-alternativas');
+      area.innerHTML = "";
+      document.getElementById('quiz-feedback').innerHTML = "";
+      q.a.forEach((alt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'alt-btn';
+        btn.textContent = alt.t;
+        btn.onclick = () => {
+          if (alt.c) {
+            btn.classList.add('correta');
+            document.getElementById('quiz-feedback').innerHTML = '<span class="quiz-acerto">Correto!</span>';
+            quizAcertos++;
+          } else {
+            btn.classList.add('errada');
+            document.getElementById('quiz-feedback').innerHTML = '<span class="quiz-erro">Incorreto!</span>';
+          }
+          Array.from(area.children).forEach(b=>b.disabled=true);
+          setTimeout(()=>{ quizAtual++; mostrarQuiz(); }, 1200);
+        };
+        area.appendChild(btn);
+      });
+      document.getElementById('quiz-placar').textContent = `Questão ${quizAtual+1} de ${quizQuestoes.length}`;
+    }
+
+    // --------- Banco de Questões ----------
+    function exibirBancoQuestoes() {
+      const area = document.getElementById('banco-lista');
+      area.innerHTML = '';
+      bancoQuestoes.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.className = 'banco-item';
+        div.innerHTML = `<div class="banco-pergunta">${item.pergunta}</div>
+        <div class="banco-resposta"><b>Resposta:</b> ${item.resposta}</div>`;
+        area.appendChild(div);
+      });
+    }
+  </script>
+</body>
+</html>
